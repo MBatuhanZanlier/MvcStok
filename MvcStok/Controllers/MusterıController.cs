@@ -1,0 +1,61 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Web;
+using System.Web.Mvc;
+using MvcStok.Models.Entity;
+namespace MvcStok.Controllers
+{
+    public class MusterıController : Controller
+    {
+        MvcDbStokEntities db = new MvcDbStokEntities();
+        public ActionResult Index(string p)
+        {
+            var degerler = from d in db.TBLMUSTERILER select d;
+            if (!string.IsNullOrEmpty(p)) 
+            {
+                degerler = degerler.Where(m => m.MUSTERIAD.Contains(p));
+            }
+            return View(degerler.ToList());
+            //var degerler = db.TBLMUSTERILER.ToList();
+
+        }
+        [HttpGet] 
+        public ActionResult YeniMusteri()
+        {
+            return View();
+        }
+        [HttpPost]
+        public ActionResult YeniMusteri(TBLMUSTERILER p)
+        {      
+            if(!ModelState.IsValid)
+            {
+                return View("YeniMusteri");
+            }
+            db.TBLMUSTERILER.Add(p);
+            db.SaveChanges(); 
+            return View();
+        } 
+        public ActionResult Sil(int id)
+        {
+            var mstr = db.TBLMUSTERILER.Find(id);
+            db.TBLMUSTERILER.Remove(mstr);
+            db.SaveChanges();
+            return RedirectToAction("Index"); 
+        }  
+        public ActionResult MusteriGetir(int id)
+        {
+            var mus = db.TBLMUSTERILER.Find(id);
+            return View("MusteriGetir",mus);
+        } 
+        public ActionResult Güncelle(TBLMUSTERILER p)
+        {
+            var musteri = db.TBLMUSTERILER.Find(p.MUSTERIID);
+            musteri.MUSTERIAD = p.MUSTERIAD;
+            musteri.MUSTERISOYAD = p.MUSTERISOYAD;
+            db.SaveChanges();
+            return RedirectToAction("Index"); 
+        }
+    }
+}
